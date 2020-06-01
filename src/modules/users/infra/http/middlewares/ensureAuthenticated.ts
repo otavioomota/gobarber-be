@@ -6,7 +6,7 @@ import authConfig from '@config/auth';
 import AppError from '@shared/errors/AppError';
 
 // Devemos definir o tipo pois há vários tipos de token
-interface TokenPayload {
+interface ITokenPayload {
   iat: string;
   exp: string;
   sub: string;
@@ -33,7 +33,7 @@ export default function ensureAuthenticated(
     const decoded = verify(token, authConfig.jwt.secret);
 
     // Especificando o tipo do decoded.
-    const { sub } = decoded as TokenPayload;
+    const { sub } = decoded as ITokenPayload;
 
     /*
       Por padrão você não consegue inserir o user ao request, já que não faz
