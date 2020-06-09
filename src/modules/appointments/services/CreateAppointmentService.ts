@@ -5,6 +5,8 @@ import AppError from '@shared/errors/AppError';
 
 import IAppointmentsRepository from '@modules/appointments/repositories/IAppointmentsRepository';
 import INotificationsRepository from '@modules/notifications/repositories/INotificationsRepository';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
+
 import Appointment from '../infra/typeorm/entities/Appointment';
 
 // DTO
@@ -30,6 +32,9 @@ class CreateAppoitmentService {
 
     @inject('NotificationsRepository')
     private notificationsRepository: INotificationsRepository,
+
+    @inject('CacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({
@@ -55,6 +60,7 @@ class CreateAppoitmentService {
 
     const findAppointmentInSameDate = await this.appointmentsRepository.findByDate(
       appointmentDate,
+      provider_id,
     );
 
     if (findAppointmentInSameDate) {
@@ -74,6 +80,9 @@ class CreateAppoitmentService {
       content: `Novo agendamento para dia ${dateFormatted}`,
     });
 
+    await this.cacheProvider.invalidate(
+      `provider-appointments:${format(appointmentDate, 'yyyy-M-d')}`,
+    );
     return appointment;
   }
 }
