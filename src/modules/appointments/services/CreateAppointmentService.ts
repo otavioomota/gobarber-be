@@ -1,4 +1,5 @@
 import { startOfHour, isBefore, getHours, format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import { injectable, inject } from 'tsyringe';
 
 import AppError from '@shared/errors/AppError';
@@ -73,7 +74,9 @@ class CreateAppoitmentService {
       date: appointmentDate,
     });
 
-    const dateFormatted = format(appointmentDate, "dd/MM/yyyy 'às' HH:mm'h'");
+    const dateFormatted = format(appointmentDate, "dd/MM/yyyy 'às' HH:mm'h'", {
+      locale: ptBR,
+    });
 
     await this.notificationsRepository.create({
       recipient_id: provider_id,
@@ -81,7 +84,10 @@ class CreateAppoitmentService {
     });
 
     await this.cacheProvider.invalidate(
-      `provider-appointments:${format(appointmentDate, 'yyyy-M-d')}`,
+      `provider-appointments:${provider_id}:${format(
+        appointmentDate,
+        'yyyy-M-d',
+      )}`,
     );
     return appointment;
   }
